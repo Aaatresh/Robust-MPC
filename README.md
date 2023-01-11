@@ -1,7 +1,7 @@
 # Robust-MPC
 
 ## Description
-Implementation of a robust unconstrained model predictive controller that takes into account modelling errors that occur when trying to approximate a complex system with a simple tractable system. The main difference of this variant compared to a vanilla unconstrained model predictive controller is that it uses the robust kalman filter that performs state estimation with the knowledge that the model we are working with is only an approximation. The MPC was applied to a set-point tracking problem in a servo-mechanical system.
+This repository implements a robust unconstrained model predictive controller that considers modeling errors when trying to approximate a complex system with a simple tractable system. The main difference of this variant compared to a vanilla unconstrained model predictive controller is that it uses the robust Kalman filter that performs state estimation with the knowledge that the model we are working with is only an approximation. The MPC was applied to a set-point tracking problem in a servo-mechanical system.
 
 **Servo-mechanical system:**
 
