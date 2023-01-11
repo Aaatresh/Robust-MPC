@@ -30,7 +30,7 @@ Run files ```code/sim_dyn_lin_model.py``` and ```code/sim_dyn_adv_model.py``` to
 
 
 ## Authors
-Contributors names and contact info:
+Contributors' names and contact info:
 * Anirudh Aatresh (aaatresh@umich.edu)  
 
 ## Version History
