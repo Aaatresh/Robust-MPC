@@ -3,7 +3,10 @@
 ## Description
 Implementation of a robust model predictive controller that takes into account modelling errors that occur when trying to approximate a complex system with a simple tractable system. The MPC was used for a set-point tracking problem in a servo-mechanical system.
 
-![](https://cs.nyu.edu/~yann/research/sparse/lista.png)
+**Servo-mechanical system:**
+
+![](./images/servo_mech_system.drawio.png)
+
   
 ## Getting Started
 
@@ -20,7 +23,11 @@ Run files ```code/sim_dyn_lin_model.py``` and ```code/sim_dyn_adv_model.py``` to
 - **When the approximated linear dynamics differs from the actual complex dynamics:** Run files ```code/vanilla_mpc_adv_dyn.py``` and ```code/robust_mpc_adv_dyn.py``` to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
 
 ## Results
-[todo]
+- Plots of the output and input of the system when the approximated linear dynamics (nominal) and the actual complex dynamics agree:
+![](./images/exp1_y_and_u.png)
+- Plots of the output and input of the system when the approximated linear dynamics (nominal) differs from the actual complex dynamics:
+![](./images/exp2_y_and_u.png)
+
 
 ## Authors
 Contributors names and contact info:
