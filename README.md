@@ -1,7 +1,7 @@
 # Robust-MPC
 
 ## Description
-Implementation of a robust model predictive controller that takes into account modelling errors that occur when trying to approximate a complex system with a simple tractable system. The MPC was used for a set-point tracking problem in a servo-mechanical system.
+Implementation of a robust model predictive controller that takes into account modelling errors that occur when trying to approximate a complex system with a simple tractable system. The MPC was applied to a set-point tracking problem in a servo-mechanical system.
 
 **Servo-mechanical system:**
 
@@ -16,11 +16,11 @@ Implementation of a robust model predictive controller that takes into account m
 ```
 
 ### Simulating the linear (simple) and complex dynamics
-Run files ```code/sim_dyn_lin_model.py``` and ```code/sim_dyn_adv_model.py``` to visualize the simulation results of the linear and complex dynamics respectively.
+Run files ```code/sim_dyn_lin_model.py``` and ```code/sim_dyn_adv_model.py``` to visualize the simulations of linear and complex dynamics respectively.
 
 ### Running the controllers on the simulated dynamics
-- **When the approximated linear dynamics and the actual complex dynamics agree:** Run files ```code/vanilla_mpc_lin_dyn.py``` and ```code/robust_mpc_lin_dyn.py``` to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
-- **When the approximated linear dynamics differs from the actual complex dynamics:** Run files ```code/vanilla_mpc_adv_dyn.py``` and ```code/robust_mpc_adv_dyn.py``` to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
+- **When the approximated linear dynamics (nominal) and the actual complex dynamics agree:** Run files ```code/vanilla_mpc_lin_dyn.py``` and ```code/robust_mpc_lin_dyn.py``` to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
+- **When the approximated linear dynamics (nominal) differs from the actual complex dynamics:** Run files ```code/vanilla_mpc_adv_dyn.py``` and ```code/robust_mpc_adv_dyn.py``` to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
 
 ## Results
 - Plots of the output and input of the system when the approximated linear dynamics (nominal) and the actual complex dynamics agree:
