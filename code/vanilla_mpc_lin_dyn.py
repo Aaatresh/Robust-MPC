@@ -98,7 +98,10 @@ for col in range(Hu):
 
 
 def get_utt(xtt):
-    """Solve the unconstrained MPC problem through a closed form expression to find the control input"""
+    """
+       Solve the unconstrained MPC problem through a closed form expression to find the control input
+       given the state estimate at that time step.
+    """
 
     term1 = np.matmul(gamma.T, np.matmul(Qk_mat, gamma)) + Rk_mat
 
@@ -113,9 +116,11 @@ def get_utt(xtt):
 y0 = np.array([[0]])
 next_yt = y0
 
+# Simulation time parameters
 tspan = [0, 20]
 samp_time = 0.1
 
+# Initial state covariance and mean
 Pt = 1e-4 * np.eye(4)
 xtt_1 = 3e-2 * np.random.randn(4, 1)
 
@@ -123,9 +128,10 @@ all_Ys = []
 all_Us = []
 all_covs = []
 
-
+# Standard deviation of state and measurement noise
 G1 = 3e-2 * np.diag(np.array([0, 1, 1, 1]))
 D1 = 3e-2 * np.array([[1, 0, 0, 0]])
+
 t_array = np.arange(tspan[0], tspan[1], samp_time)
 
 # Simulation loop

@@ -95,7 +95,10 @@ for col in range(Hu):
 
 
 def get_utt(xtt):
-    """Solve the unconstrained MPC problem through a closed form expression to find the control input"""
+    """
+       Solve the unconstrained MPC problem through a closed form expression to find the control input
+       given the state estimate at that time step.
+    """
 
     term1 = np.matmul(gamma.T, np.matmul(Qk_mat, gamma)) + Rk_mat
 
@@ -107,7 +110,10 @@ def get_utt(xtt):
 
 
 def eval_kld(Pt, param_t, kld_thresh):
-    """ Evaluate KL divergence """
+    """
+        Evaluate KL divergence given the state's covariance matrix, inverse of the lagrange multiplier and
+        the radius of a ball around the nominal model.
+    """
 
     # term1 = -np.log(np.linalg.det(np.linalg.inv(np.eye(2, 2) - (param_t * Pt))))
     term1 = np.log(np.linalg.det(np.eye(4, 4) - (param_t * Pt)))
@@ -119,7 +125,7 @@ def eval_kld(Pt, param_t, kld_thresh):
 
 
 def bijection_algo(Pt):
-    """ Root finding algorithm - Bijection algorithm """
+    """ Root finding algorithm - Bijection algorithm, given the state's covariance matrix """
 
     eps = 1e-7
     param1 = eps
@@ -149,6 +155,10 @@ def bijection_algo(Pt):
 
 
 def non_lin_dyn(x, u, k):
+
+    """
+        Simulate discrete time non-linear dynamics. Find next state given current state, input and time step number.
+    """
 
     # Model parameters
     eps_max = 0
@@ -185,13 +195,16 @@ def non_lin_dyn(x, u, k):
 
 
 def sign(x):
-
+    """
+        Signum function.
+    """
     if(x > 0):
         return 1
     elif(x < 0):
         return -1
     else:
         return 0
+
 
 # Threshold for KL divergence. In the reference literature, this is mentioned as 'c'
 kld_thresh = 0.1
@@ -200,11 +213,13 @@ kld_thresh = 0.1
 y0 = np.array([[0]])
 next_yt = y0
 
+# Simulation time parameters
 tspan = [0, 20]
 samp_time = 0.1
 
+# Initial state covariance and mean
 Pt = np.eye(4)
-xtt_1 = np.zeros((4, 1))
+# xtt_1 = np.zeros((4, 1))
 xtt_1 = 1e-2 * np.random.randn(4, 1)
 
 all_Ys = []
@@ -212,8 +227,10 @@ all_Us = []
 all_covs = []
 # exit()
 
+# Standard deviation of state and measurement noise
 G1 = 1e-2 * np.diag(np.array([0, 1, 1, 1]))
 D1 = 1e-2 * np.array([[1, 0, 0, 0]])
+
 t_array = np.arange(tspan[0], tspan[1], samp_time)
 
 # Simulation loop
