@@ -17,11 +17,11 @@ The complex non-linear dynamics and simple linear dynamics of this system can be
 ```
 
 ### Simulating the linear (simple) and non-linear complex dynamics
-Run files ```code/sim_dyn_lin_model.py``` and ```code/sim_dyn_adv_model.py``` to visualize the simulations of linear and complex dynamics, respectively.
+Run files ```code/servo_mech_system/sim_dyn_lin_model.py``` and ```code/servo_mech_system/sim_dyn_adv_model.py``` to visualize the simulations of linear and complex dynamics, respectively.
 
 ### Running the controllers on the simulated dynamics
-- **Scenario 1: When the approximated linear dynamics (nominal) and the actual complex dynamics agree:** Run files ```code/vanilla_mpc_lin_dyn.py``` and ```code/robust_mpc_lin_dyn.py``` to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
-- **Scenario 2: When the approximated linear dynamics (nominal) differs from the actual complex dynamics (More realistic scenario):** Run files ```code/vanilla_mpc_adv_dyn.py``` and ```code/robust_mpc_adv_dyn.py``` to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
+- **Scenario 1: When the approximated linear dynamics (nominal) and the actual complex dynamics agree:** Run files ```code/run_vanilla_mpc.py``` and ```code/run_robust_mpc.py``` with the ```-s 1``` integer argument to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
+- **Scenario 2: When the approximated linear dynamics (nominal) differs from the actual complex dynamics (More realistic scenario):** Run files ```code/run_vanilla_mpc.py``` and ```code/run_robust_mpc.py``` with the ```-s 2``` integer argument to compare the performance of the vanilla unconstrained MPC and the robust unconstrained MPC.
 
 ## Results
 - (Scenario 1 from the previous sub-section) Plots of the output and input (above and below, respectively) of the system when the approximated linear dynamics (nominal) and the actual complex dynamics agree:
