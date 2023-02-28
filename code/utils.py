@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.linalg
-from controller_config import kld_thresh
+from code.controllers.controller_config import kld_thresh
 
 
 def cnt_to_dst(Ac, Bc, C, dt):

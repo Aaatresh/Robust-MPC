@@ -3,16 +3,17 @@
 """
 
 # Importing necessary libraries
+import numpy as np
 import matplotlib.pyplot as plt
-from controller_config import *
-import system_config as servo_system
-from utils import *
-from vanilla_mpc_def import vanilla_mpc
+from code.controllers.controller_config import *
+from code.servo_mech_system import system_config as servo_system
+from code.utils import *
+from code.controllers.vanilla_mpc_def import vanilla_mpc
 
 """
 Choose from scenario 1 and 2:
 """
-situation = "scenario 1"
+situation = "scenario 2"
 
 # Check value of 'situation'
 if(not (situation == "scenario 1" or situation == "scenario 2")):

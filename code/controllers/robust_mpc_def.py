@@ -3,7 +3,7 @@
 """
 
 import numpy as np
-import system_config as servo_system
+import code.servo_mech_system.system_config as servo_system
 from utils import *
 
 class robust_mpc:

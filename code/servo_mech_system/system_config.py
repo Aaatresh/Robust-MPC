@@ -1,6 +1,6 @@
 import numpy as np
-from utils import *
-import system_config as servo_system
+from code.utils import *
+# import system_config as servo_system
 
 # Model parameters
 L = 0  # armature coil inductance
@@ -76,7 +76,7 @@ def non_lin_dyn(x, u, k):
     xdot[2, 0] = x[3, 0]
 
     Tfm = (alpha_m0 + (alpha_m1 * np.exp(-alpha_m2 * np.abs(x[3, 0])))) * sign(x[3, 0])
-    Im = ((u - (Kt * x[3, 0])) / R) * (1 - np.exp(-R * k * servo_system.dt / L))
+    Im = ((u - (Kt * x[3, 0])) / R) * (1 - np.exp(-R * k * dt / L))
     Tm = Kt * Im
     xdot[3, 0] = (1 / J_m) * (Tm - Ts - (beta_m * x[3, 0]) - Tfm)
 
