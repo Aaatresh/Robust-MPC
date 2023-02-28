@@ -11,7 +11,7 @@ from code.utils import *
 from code.controllers.robust_mpc_def import robust_mpc
 import argparse
 
-parser = argparse.ArgumentParser("Run robust MPC with for different scenarios. For information about scenarios, refer to README.md.")
+parser = argparse.ArgumentParser("Run robust MPC with different scenarios. For information about scenarios, refer to README.md.")
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")
 
 args = parser.parse_args()
@@ -30,7 +30,6 @@ rt = r * np.ones((Hp, 1))
 
 # Define action model noise standard of deviation
 act_model_std = 3e-2
-
 # Define action model noise standard of deviation
 sen_model_std = 3e-2
 
