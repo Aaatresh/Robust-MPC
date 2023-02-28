@@ -12,8 +12,12 @@ from vanilla_mpc_def import vanilla_mpc
 """
 Choose from scenario 1 and 2:
 """
+situation = "scenario 1"
 
-situation = "scenario 2"
+# Check value of 'situation'
+if(not (situation == "scenario 1" or situation == "scenario 2")):
+    raise ValueError("\'situation\' variable must be either \"scenario 1\" or \"scenario 2\".")
+
 
 # Convert the model to discrete-time
 A, B, C = cnt_to_dst(servo_system.Ac, servo_system.Bc, servo_system.C, servo_system.dt)
