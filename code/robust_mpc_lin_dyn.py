@@ -3,56 +3,14 @@ Performance of the robust MPC when the approximated model and the actual model c
 """
 
 # Importing necessary libraries
-import numpy as np
 import matplotlib.pyplot as plt
-import time
-
-# Linear model parameters
-L = 0  # armature coil inductance
-# J_m = 0.5  # motor inertia
-J_m = 0.5  # motor inertia
-beta_m = 0.1   # motor viscous friction coefficient
-R = 20   # resistance of armature
-Kt = 10  # motor constant
-rho = 20  # gear ratio
-k_theta = 1280.2  # torsional rigidity
-J_l = 25  # nominal load inertia
-# J_l = 10  # nominal load inertia
-beta_l = 25  # load viscous friction coefficient
-
-del_t = 0.1
-
-# Define A
-Ac = np.array([
-    [0, 1, 0, 0],
-    [-(k_theta) / J_l, -beta_l / J_l, (k_theta) / (rho * J_l), 0],
-    [0, 0, 0, 1],
-    [(k_theta) / (rho * J_m), 0, (-k_theta) / ((rho**2) * J_m),  - ((Kt**2) / (J_m * R)) - (beta_m / J_m)]
-])
-
-# Define B
-Bc = np.array([
-    [0],
-    [0],
-    [0],
-    [Kt / (J_m * R)]
-])
-
-# Define C
-C = np.array([
-    [1, 0, 0, 0]
-])
-
-import scipy.linalg
+from controller_config import *
+import system_config as servo_system
+from utils import *
+from vanilla_mpc_def import vanilla_mpc
 
 # Convert the model to discrete-time
-T = 0.1
-A = scipy.linalg.expm(Ac*T)
-B = np.matmul(np.linalg.pinv(Ac), np.matmul((scipy.linalg.expm(Ac*T)-np.eye(4, 4)), Bc))
-
-# prediction and control horizons
-Hp = 10
-Hu = 3
+A, B, C = cnt_to_dst(servo_system.Ac, servo_system.Bc, servo_system.C, servo_system.dt)
 
 # Set point
 r = np.pi / 2
@@ -109,56 +67,6 @@ def get_utt(xtt):
     return utt
 
 
-def eval_kld(Pt, param_t, kld_thresh):
-    """
-        Evaluate KL divergence given the state's covariance matrix, inverse of the lagrange multiplier and
-        the radius of a ball around the nominal model.
-    """
-
-    # term1 = -np.log(np.linalg.det(np.linalg.inv(np.eye(2, 2) - (param_t * Pt))))
-    term1 = np.log(np.linalg.det(np.eye(4, 4) - (param_t * Pt)))
-    term2 = np.trace(np.linalg.inv(np.eye(4, 4) - (param_t * Pt)) - np.eye(4, 4))
-
-    term_total = term1 + term2 - kld_thresh
-
-    return term_total
-
-
-def bijection_algo(Pt):
-
-    """ Root finding algorithm - Bijection algorithm, given the state's covariance matrix """
-
-    eps = 1e-7
-    param1 = eps
-
-    eigs = np.linalg.eigvals(Pt + 1e-7 * np.eye(4, 4))
-    eigs = eigs.real
-
-    lam = np.max(np.abs(eigs))
-
-    if(((1 / lam) > 2 * eps) and (lam > 1e-5)):
-        param2 = (1 / lam) - eps
-    else:
-        param2 = eps
-
-    param_t = param1
-
-    while(np.abs(param1 - param2) > eps):
-
-        param_t = (param1 + param2) / 2
-        kld = eval_kld(Pt, param_t, kld_thresh)
-
-        if(kld < 0):
-            param1 = param_t
-        else:
-            param2 = param_t
-
-    return param_t
-
-
-# Threshold for KL divergence. In the reference literature, this is mentioned as 'c'
-kld_thresh = 0.1
-
 # Initialize yt
 y0 = np.array([[0]])
 next_yt = y0
@@ -182,14 +90,10 @@ D1 = 3e-2 * np.array([[1, 0, 0, 0]])
 t_array = np.arange(tspan[0], tspan[1], samp_time)
 
 # Simulation loop
-start_time = time.time()
 for t in t_array:
 
     # collect new data
     yt = next_yt
-
-    all_Ys.append(yt[0, 0])
-    all_covs.append(Vt[0, 0])
 
     # Find param_t using the bijection algo
     param_t = bijection_algo(Pt)
@@ -233,9 +137,11 @@ for t in t_array:
     # Prediction step
     xtt_1 = np.matmul(A, xtt_1) + (kg * (yt - np.matmul(C, xtt_1))) + (B * utt)
 
-end_time = time.time()
+    all_Us.append(utt[0, 0])
+    all_Ys.append(yt[0, 0])
+    all_covs.append(Vt[0, 0])
 
-print("Execution time: ", (end_time - start_time) / t_array.size)
+
 
 plt.figure()
 plt.plot(t_array, all_Ys, label='Output')
@@ -252,9 +158,9 @@ plt.title("Plot of control input versus time")
 plt.ylabel("Input voltage (V)")
 plt.xlabel("Time (sec)")
 
+plt.show()
+
 # Saving all the arrays
 # np.save("npy_files/exp1/rob_mpc_lin_dyn_y", np.array(all_Ys))
 # np.save("npy_files/exp1/rob_mpc_lin_dyn_u", np.array(all_Us))
 # np.save("npy_files/exp1/rob_mpc_lin_dyn_cov", np.array(all_covs))
-
-plt.show()
