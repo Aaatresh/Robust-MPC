@@ -1,13 +1,13 @@
 """
-    Module with standard MPC definition.
+    Module with robust MPC definition.
 """
 
 import numpy as np
 import system_config as servo_system
-
+from utils import *
 
 class robust_mpc:
-    """ Class definition of a standard MPC controller """
+    """ Class definition of a robust MPC controller """
 
     def __init__(self, A, B, C, Rk, Qk, Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1):
         """
@@ -62,7 +62,7 @@ class robust_mpc:
 
     def init_controller(self, Rk, Qk):
         """
-            Function to initialize the standard MPC.
+            Function to initialize the robust MPC.
 
             Args:
                 Rk - Diagonal elementwise control input gain
@@ -105,7 +105,7 @@ class robust_mpc:
     def get_utt(self, xtt, rt):
         """
            Solve the unconstrained MPC problem through a closed form expression to find the control input
-           given the state estimate at that time step.
+           given the state estimate at that time step in a robust Kalman filter.
 
            Args:
                xtt - predicted state
@@ -137,7 +137,7 @@ class robust_mpc:
 
     def state_prediction(self, yt):
         """
-            Function that performs the state prediction step in a standard Kalman filter.
+            Function that performs the state prediction step in a robust Kalman filter.
 
             Args:
                 yt - output of the system
@@ -146,9 +146,15 @@ class robust_mpc:
                 xtt - Predicted state of the system.
         """
 
+        # Find param_t using the bijection algo
+        param_t = bijection_algo(self.Pt)
+
+        # Determine Vt
+        self.Vt = np.linalg.pinv(np.linalg.pinv(self.Pt) - (param_t * np.eye(4, 4)))
+
         # Find Lt
-        term1 = np.matmul(self.Pt, self.C.T)
-        term2 = np.linalg.pinv(np.matmul(self.C, np.matmul(self.Pt, self.C.T)) + (np.matmul(self.D1, self.D1.T)))
+        term1 = np.matmul(self.Vt, self.C.T)
+        term2 = np.linalg.pinv(np.matmul(self.C, np.matmul(self.Vt, self.C.T)) + np.matmul(self.D1, self.D1.T))
         self.Lt = np.matmul(term1, term2)
 
         # Prediction step to find xtt
@@ -156,10 +162,10 @@ class robust_mpc:
 
         return xtt
 
-    def state_update(self, utt, yt):
 
+    def state_update(self, utt, yt):
         """
-            Function that performs the state update step.
+            Function that performs the state update step in a robust Kalman filter.
 
             Args:
                 utt - Optimal control input.
@@ -173,13 +179,14 @@ class robust_mpc:
         kg = np.matmul(self.A, self.Lt)
 
         # Update pt
-        term1 = np.matmul(self.A, np.matmul(self.Pt, self.A.T))
-        term2 = np.matmul(self.C, np.matmul(self.Pt, self.C.T)) + np.matmul(self.D1, self.D1.T)
+        term1 = np.matmul(self.A, np.matmul(self.Vt, self.A.T))
+        term2 = np.matmul(self.C, np.matmul(self.Vt, self.C.T)) + np.matmul(self.D1, self.D1.T)
         term3 = np.matmul(kg, np.matmul(term2, kg.T))
         self.Pt = term1 - term3 + np.matmul(self.G1, self.G1.T)
 
         # Prediction step
         self.xtt = np.matmul(self.A, self.xtt) + (kg * (yt - np.matmul(self.C, self.xtt))) + (self.B * utt)
+
 
     def step(self, yt, rt):
 
