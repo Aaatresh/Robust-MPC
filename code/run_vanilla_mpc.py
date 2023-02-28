@@ -1,5 +1,5 @@
 """
-    Performance of the vanilla MPC when the approximated model and the actual model coincide.
+    Run the vanilla MPC in different scenarios. For more information about the scenarios, refer README.md.
 """
 
 # Importing necessary libraries
@@ -11,7 +11,7 @@ from code.utils import *
 from code.controllers.vanilla_mpc_def import vanilla_mpc
 import argparse
 
-parser = argparse.ArgumentParser("Run vanilla MPC with different scenarios. For information about scenarios, refer to README.md.")
+parser = argparse.ArgumentParser("Run vanilla MPC in different scenarios. For information about scenarios, refer to README.md.")
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")
 
 args = parser.parse_args()
@@ -113,8 +113,3 @@ plt.ylabel("Input voltage (V)")
 plt.xlabel("Time (sec)")
 
 plt.show()
-
-# Save relevant arrays
-# np.save("npy_files/exp1/std_mpc_lin_dyn_y", np.array(all_Ys))
-# np.save("npy_files/exp1/std_mpc_lin_dyn_u", np.array(all_Us))
-# np.save("npy_files/exp1/std_mpc_lin_dyn_cov", np.array(all_covs))

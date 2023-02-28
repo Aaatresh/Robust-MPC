@@ -1,5 +1,5 @@
 """
-    Module with standard MPC definition.
+    Module with vanilla MPC definition.
 """
 
 import numpy as np

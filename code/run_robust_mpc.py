@@ -1,5 +1,5 @@
 """
-    Performance of the robust MPC when the approximated model and the actual model coincide
+    Run the robust MPC in different scenarios. For more information about the scenarios, refer README.md.
 """
 
 # Importing necessary libraries
@@ -11,7 +11,7 @@ from code.utils import *
 from code.controllers.robust_mpc_def import robust_mpc
 import argparse
 
-parser = argparse.ArgumentParser("Run robust MPC with different scenarios. For information about scenarios, refer to README.md.")
+parser = argparse.ArgumentParser("Run robust MPC in different scenarios. For information about scenarios, refer to README.md.")
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")
 
 args = parser.parse_args()
@@ -38,6 +38,7 @@ if(args.s == 1):
     Rk = 0.1
     Qk = 5e4
 
+    # Initial state covariance and mean
     init_Pt = np.eye(A.shape[0])  # Initial state covariance
     init_xtt_1 = 3e-2 * np.random.randn(A.shape[0], 1)  # Initial state mean
 
@@ -59,8 +60,6 @@ next_yt = y0
 tspan = [0, 20]
 # samp_time = 0.1
 
-# init_Pt = np.eye(4)  # Initial state covariance
-# init_xtt_1 = 3e-2 * np.random.randn(4, 1)  # Initial state mean
 
 all_Ys = []
 all_Us = []
@@ -112,8 +111,3 @@ plt.ylabel("Input voltage (V)")
 plt.xlabel("Time (sec)")
 
 plt.show()
-
-# Saving all the arrays
-# np.save("npy_files/exp1/rob_mpc_lin_dyn_y", np.array(all_Ys))
-# np.save("npy_files/exp1/rob_mpc_lin_dyn_u", np.array(all_Us))
-# np.save("npy_files/exp1/rob_mpc_lin_dyn_cov", np.array(all_covs))
