@@ -49,14 +49,14 @@ Rk, Qk = get_controller_weights(args.s)
 
 # Initial state covariance and mean
 init_Pt = np.eye(A.shape[0])  # Initial state covariance
-init_xtt_1 = 3e-2 * np.random.randn(A.shape[0], 1)  # Initial state mean
+init_xtt_1 = 3e-2 * np.random.randn(A.shape[0], 1)  # Initial state mean: TODO: Generalize standard of deviation
 
 
 # Initialize yt
 y0 = np.array([[0]])
 next_yt = y0
 
-# Simulation time parameters
+# Simulation time parameters: TODO: Parameterize upper bound on time steps
 tspan = [0, 20]
 
 all_Ys = []
