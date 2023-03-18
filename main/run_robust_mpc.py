@@ -1,19 +1,22 @@
 """
     Run the robust MPC in different scenarios. For more information about the scenarios, refer README.md.
 """
+import sys
+# import os
+from pathlib import Path
+REPOROOT = Path(__file__).resolve().parents[1]
+sys.path.append(str(REPOROOT))
 
 # Importing necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
 
-from controllers.robust_mpc_def import robust_mpc
+from libs.controllers.robust_mpc_def import robust_mpc
 
-from controllers.controller_config import *
-from servo_mech_system import system_config as servo_system
-from utils import *
+from libs.controllers.controller_config import *
+from libs.servo_mech_system import system_config as servo_system
+from utils.utils import *
 import argparse
-
-exit()
 
 parser = argparse.ArgumentParser("Run robust MPC in different scenarios. For information about scenarios, refer to README.md.")
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")

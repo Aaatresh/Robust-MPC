@@ -1,5 +1,5 @@
 import numpy as np
-from code.utils import *
+from utils.utils import *
 # import system_config as servo_system
 
 # Model parameters

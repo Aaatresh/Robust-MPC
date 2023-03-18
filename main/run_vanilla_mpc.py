@@ -5,10 +5,10 @@
 # Importing necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
-from code.controllers.controller_config import *
-from code.servo_mech_system import system_config as servo_system
-from code.utils import *
-from code.controllers.vanilla_mpc_def import vanilla_mpc
+from libs.controllers.controller_config import *
+from libs.servo_mech_system import system_config as servo_system
+from utils.utils import *
+from libs.controllers.vanilla_mpc_def import vanilla_mpc
 import argparse
 
 parser = argparse.ArgumentParser("Run vanilla MPC in different scenarios. For information about scenarios, refer to README.md.")

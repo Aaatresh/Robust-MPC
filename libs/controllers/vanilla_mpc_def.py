@@ -3,7 +3,7 @@
 """
 
 import numpy as np
-import code.servo_mech_system.system_config as servo_system
+import libs.servo_mech_system.system_config as servo_system
 
 
 class vanilla_mpc:
