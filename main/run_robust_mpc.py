@@ -5,11 +5,15 @@
 # Importing necessary libraries
 import numpy as np
 import matplotlib.pyplot as plt
-from code.controllers.controller_config import *
-from code.servo_mech_system import system_config as servo_system
-from code.utils import *
-from code.controllers.robust_mpc_def import robust_mpc
+
+from controllers.robust_mpc_def import robust_mpc
+
+from controllers.controller_config import *
+from servo_mech_system import system_config as servo_system
+from utils import *
 import argparse
+
+exit()
 
 parser = argparse.ArgumentParser("Run robust MPC in different scenarios. For information about scenarios, refer to README.md.")
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")

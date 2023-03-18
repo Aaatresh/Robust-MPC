@@ -2,8 +2,19 @@
     Module with robust MPC definition.
 """
 
+import sys
+import os
+from pathlib import Path
+REPOROOT = Path(__file__).resolve().parents[2]
+sys.path.append(os.fspath(REPOROOT))
+
 import numpy as np
-import code.servo_mech_system.system_config as servo_system
+print(__file__)
+exit()
+from code.servo_mech_system import system_config as servo_system
+
+exit()
+
 from utils import *
 
 class robust_mpc:
