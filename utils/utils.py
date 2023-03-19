@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.linalg
-# from libs.mpc_controllers.controller_config import kld_thresh
+import os
+import matplotlib.pyplot as plt
 
 
 def cnt_to_dst(cont_lin_state_space, dt):
@@ -117,3 +118,31 @@ def load_yaml(filepath):
             raise exception
 
     return data
+
+
+def visualize_controller(collected_data, args, CONTROLLER_NAME, setpoint):
+
+    t_array, all_Ys, all_Us, all_covs = collected_data
+
+    plt.figure()
+    plt.plot(t_array, all_Ys, label='Output')
+    plt.axhline(y=setpoint, color='k', linestyle='--', label='Set-point= (pi / 2)')
+    plt.fill_between(t_array, y1=[y + np.sqrt(c) for y, c in zip(all_Ys, all_covs)],
+                     y2=[y - np.sqrt(c) for y, c in zip(all_Ys, all_covs)], alpha=0.5)
+    plt.title("Plot of output versus time")
+    plt.ylabel("Angle (rad)")
+    plt.xlabel("Time (sec)")
+    plt.legend()
+
+    if(args.savepath is not None):
+        plt.savefig(os.path.join(args.savepath, f"y_vs_t_{CONTROLLER_NAME}_MPC_Scenario_{args.s}.png"))
+
+
+    plt.figure()
+    plt.plot(all_Us)
+    plt.title("Plot of control input versus time")
+    plt.ylabel("Input voltage (V)")
+    plt.xlabel("Time (sec)")
+
+    if(args.savepath is not None):
+        plt.savefig(os.path.join(args.savepath, f"u_vs_t_{CONTROLLER_NAME}_MPC_Scenario_{args.s}.png"))

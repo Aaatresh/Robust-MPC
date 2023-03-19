@@ -20,7 +20,7 @@ from plants.servo_mech_system.system_config import servo_mech_plant
 from libs.mpc_controllers.vanilla_mpc_def import vanilla_mpc
 
 ## Import utils
-from utils.utils import cnt_to_dst, load_yaml
+from utils.utils import visualize_controller, load_yaml
 
 ## Import setpoint generation function
 from plants.servo_mech_system.setpoint_generator import const_setpoint_gen
@@ -112,27 +112,7 @@ for e, t in enumerate(t_array):
     all_Us.append(utt[0, 0])
 
 
-plt.figure()
-plt.plot(t_array, all_Ys, label='Output')
-plt.axhline(y=r, color='k', linestyle='--', label='Set-point= (pi / 2)')
-plt.fill_between(t_array, y1=[y + np.sqrt(c) for y, c in zip(all_Ys, all_covs)],
-                 y2=[y - np.sqrt(c) for y, c in zip(all_Ys, all_covs)], alpha=0.5)
-plt.title("Plot of output versus time")
-plt.ylabel("Angle (rad)")
-plt.xlabel("Time (sec)")
-plt.legend()
-
-if(args.savepath is not None):
-    plt.savefig(os.path.join(args.savepath, f"y_vs_t_{CONTROLLER_NAME}_MPC_Scenario_{args.s}.png"))
-
-
-plt.figure()
-plt.plot(all_Us)
-plt.title("Plot of control input versus time")
-plt.ylabel("Input voltage (V)")
-plt.xlabel("Time (sec)")
-
-if(args.savepath is not None):
-    plt.savefig(os.path.join(args.savepath, f"u_vs_t_{CONTROLLER_NAME}_MPC_Scenario_{args.s}.png"))
+collected_data = [t_array, all_Ys, all_Us, all_covs]
+visualize_controller(collected_data, args, CONTROLLER_NAME, r)
 
 plt.show()

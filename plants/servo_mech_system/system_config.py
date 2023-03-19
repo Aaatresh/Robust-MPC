@@ -121,7 +121,6 @@ class servo_mech_plant:
 
         return xdot
 
-
     def fwd_prop_lin_model(self, xtt, utt, G1, D1):
         vtt = np.random.randn(self.disc_lin_state_space["A"].shape[0], 1)
         next_xtt = np.matmul(self.disc_lin_state_space["A"], xtt) + (self.disc_lin_state_space["B"] * utt) + np.matmul(G1, vtt)
