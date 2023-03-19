@@ -128,10 +128,10 @@ class robust_mpc:
         utt = np.matmul(W, np.matmul(np.linalg.inv(term1), term2))
 
         # Clamp calculated control input to max
-        if (utt > servo_system.Vmax):
-            utt = np.array([[servo_system.Vmax]])
-        elif (utt < -servo_system.Vmax):
-            utt = np.array([[-servo_system.Vmax]])
+        if (utt > servo_system.model_params["Vmax"]):
+            utt = np.array([[servo_system.model_params["Vmax"]]])
+        elif (utt < -servo_system.model_params["Vmax"]):
+            utt = np.array([[-servo_system.model_params["Vmax"]]])
 
         return utt
 

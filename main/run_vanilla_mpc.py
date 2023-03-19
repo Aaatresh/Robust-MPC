@@ -41,7 +41,7 @@ CONTROLLER_NAME = "vanilla"
 
 # Convert the model to discrete-time
 cont_lin_state_space = servo_system.init_lin_dyn()
-disc_lin_state_space = cnt_to_dst(cont_lin_state_space, servo_system.dt)
+disc_lin_state_space = cnt_to_dst(cont_lin_state_space, servo_system.model_params["dt"])
 
 # Define a constant setpoint value. This can be changed based on the type of setpoint tracking desired. This signal
 # can be made more complex as well.
@@ -81,7 +81,7 @@ all_Ys = []
 all_Us = []
 all_covs = []
 
-t_array = np.arange(tspan[0], tspan[1], servo_system.dt)
+t_array = np.arange(tspan[0], tspan[1], servo_system.model_params["dt"])
 
 # controller
 controller = vanilla_mpc(disc_lin_state_space, Rk, Qk,
@@ -106,7 +106,7 @@ for e, t in enumerate(t_array):
         next_xtt = np.matmul(disc_lin_state_space["A"], xtt) + (disc_lin_state_space["B"] * utt) + np.matmul(controller.G1, vtt)
         next_yt = np.matmul(disc_lin_state_space["C"], next_xtt) + np.matmul(controller.D1, vtt)
     elif(args.s == 2):
-        next_xtt = xtt + (servo_system.dt * servo_system.nonlin_dyn_step(xtt, utt, e + 1))
+        next_xtt = xtt + (servo_system.model_params["dt"] * servo_system.nonlin_dyn_step(xtt, utt, e + 1))
         next_yt = np.matmul(disc_lin_state_space["C"], next_xtt)
 
 

@@ -1,19 +1,11 @@
 from utils.utils import sign, load_yaml
 import numpy as np
 
-# Sampling time for this system
-dt = 0.1
-#
-# Define bound on input voltage in volts
-Vmax = 220
-
-# Absolute file path to linear dynamics parameters yaml file
-lin_dyn_params_filepath = "/home/aaa/aatresh/umich_courses/ae567/projects/project4/public_github_repo/Robust-MPC/plants/servo_mech_system/linear_model_params.yaml"
-lin_params = load_yaml(lin_dyn_params_filepath)
-
-# Absolute file path to linear dynamics parameters yaml file
-nonlin_dyn_params_filepath = "/home/aaa/aatresh/umich_courses/ae567/projects/project4/public_github_repo/Robust-MPC/plants/servo_mech_system/nonlinear_model_params.yaml"
-nonlin_params = load_yaml(nonlin_dyn_params_filepath)
+""" Load Model """
+# Define path to model parameter yaml file
+model_params_filepath = "/home/aaa/aatresh/umich_courses/ae567/projects/project4/public_github_repo/Robust-MPC/plants/servo_mech_system/model_params.yaml"
+# Load all dynamics and model parameters from yaml file nad store in dictionary
+model_params = load_yaml(model_params_filepath)
 
 
 def init_lin_dyn():
@@ -30,6 +22,7 @@ def init_lin_dyn():
 
     """
 
+    lin_params = model_params["linear_model"]
 
     # Define A
     Ac = np.array([
@@ -70,6 +63,7 @@ def nonlin_dyn_step(x, u, k):
         Simulate discrete time non-linear dynamics. Find next state given current state, input and time step number.
     """
 
+    nonlin_params = model_params["nonlinear_model"]
 
     xdot = np.zeros_like(x)
 
@@ -83,7 +77,7 @@ def nonlin_dyn_step(x, u, k):
     xdot[2, 0] = x[3, 0]
 
     Tfm = (nonlin_params["alpha_m0"] + (nonlin_params["alpha_m1"] * np.exp(-nonlin_params["alpha_m2"] * np.abs(x[3, 0])))) * sign(x[3, 0])
-    Im = ((u - (nonlin_params["Kt"] * x[3, 0])) / nonlin_params["R"]) * (1 - np.exp(-nonlin_params["R"] * k * dt / nonlin_params["L"]))
+    Im = ((u - (nonlin_params["Kt"] * x[3, 0])) / nonlin_params["R"]) * (1 - np.exp(-nonlin_params["R"] * k * model_params["dt"] / nonlin_params["L"]))
     Tm = nonlin_params["Kt"] * Im
     xdot[3, 0] = (1 / nonlin_params["J_m"]) * (Tm - Ts - (nonlin_params["beta_m"] * x[3, 0]) - Tfm)
 
