@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.linalg
-from libs.controllers.controller_config import kld_thresh
+# from libs.controllers.controller_config import kld_thresh
 
 
 def cnt_to_dst(cont_lin_state_space, dt):
@@ -64,7 +64,7 @@ def eval_kld(Pt, param_t, kld_thresh):
     return term_total
 
 
-def bijection_algo(Pt):
+def bijection_algo(Pt, kld_thresh):
 
     """ Root finding algorithm - Bijection algorithm, given the state's covariance matrix """
 

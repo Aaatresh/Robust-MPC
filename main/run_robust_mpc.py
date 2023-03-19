@@ -17,11 +17,11 @@ import matplotlib.pyplot as plt
 
 ## Import controller, controller configuration, and plant configuration
 from libs.controllers.robust_mpc_def import robust_mpc
-from libs.controllers.controller_config import *
+# from libs.controllers.controller_config import config_params
 from plants.servo_mech_system import system_config as servo_system
 
 ## Import utils
-from utils.utils import cnt_to_dst
+from utils.utils import cnt_to_dst, load_yaml
 
 ## Import setpoint generation function
 from plants.servo_mech_system.setpoint_generator import const_setpoint_gen
@@ -31,6 +31,7 @@ import argparse
 parser = argparse.ArgumentParser("Run robust MPC in different scenarios. For information about scenarios, refer to README.md.")
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")
 parser.add_argument("--savepath",type=str, default=None, help="Directory in which plots are to be saved.")
+parser.add_argument("--controller_config_filepath", type=str, default=None, required=True, help="Path to YAML controller configuration file.")
 args = parser.parse_args()
 
 # Check value of '-s' argument
@@ -38,6 +39,7 @@ if(not (args.s == 1 or args.s == 2)):
     raise ValueError("\'-s\' argument must be either 1 or 2.")
 
 CONTROLLER_NAME = "robust"
+controller_config_params = load_yaml(args.controller_config_filepath)
 
 # Convert the model to discrete-time
 cont_lin_state_space = servo_system.init_lin_dyn()
@@ -49,7 +51,8 @@ r = np.pi / 2
 
 
 # Weight matrices Rk and Qk
-Rk, Qk = get_controller_weights(CONTROLLER_NAME, args.s)
+Rk = controller_config_params[CONTROLLER_NAME][args.s]["Rk"]
+Qk = controller_config_params[CONTROLLER_NAME][args.s]["Qk"]
 
 # Initial state covariance and mean
 init_Pt = np.eye(disc_lin_state_space["A"].shape[0])  # Initial state covariance
@@ -70,7 +73,7 @@ all_covs = []
 t_array = np.arange(tspan[0], tspan[1], servo_system.model_params["dt"])
 
 # controller
-controller = robust_mpc(disc_lin_state_space, Rk, Qk, Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1)
+controller = robust_mpc(disc_lin_state_space, controller_config_params, Rk, Qk, init_Pt, init_xtt_1)
 
 # Simulation loop
 for e, t in enumerate(t_array):
@@ -79,7 +82,7 @@ for e, t in enumerate(t_array):
     yt = next_yt
 
     # Define setpoint for a certain prediction horizon
-    rt = const_setpoint_gen(r, Hp)
+    rt = const_setpoint_gen(r, controller_config_params["Hp"])
 
     # Calculate optimal control input
     xtt, utt = controller.step(yt, rt)

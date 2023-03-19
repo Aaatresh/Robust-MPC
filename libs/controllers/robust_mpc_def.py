@@ -9,7 +9,7 @@ from utils.utils import *
 class robust_mpc:
     """ Class definition of a robust MPC controller """
 
-    def __init__(self, disc_lin_state_space, Rk, Qk, Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1):
+    def __init__(self, disc_lin_state_space, controller_config_params, Rk, Qk, init_Pt, init_xtt_1):
         """
             Constructor
 
@@ -38,8 +38,8 @@ class robust_mpc:
         self.B = disc_lin_state_space["B"]
         self.C = disc_lin_state_space["C"]
 
-        self.Hu = Hu
-        self.Hp = Hp
+        self.Hu = controller_config_params["Hu"]
+        self.Hp = controller_config_params["Hp"]
 
         self.Qk_mat = None
         self.Rk_mat = None
@@ -51,14 +51,17 @@ class robust_mpc:
         self.init_controller(Rk, Qk)
 
         # Standard deviation of state and measurement noise
-        self.G1 = act_model_std * np.diag(np.array([0, 1, 1, 1]))
-        self.D1 = sen_model_std * np.array([[1, 0, 0, 0]])
+        self.G1 = controller_config_params["act_model_std"] * np.diag(np.array([0, 1, 1, 1]))
+        self.D1 = controller_config_params["sen_model_std"] * np.array([[1, 0, 0, 0]])
 
         # Initial state covariance and mean
         self.Pt = init_Pt
 
         # state of the system
         self.xtt = init_xtt_1
+
+        # store KLD threshold
+        self.kld_thresh = controller_config_params["kld_thresh"]
 
     def init_controller(self, Rk, Qk):
         """
@@ -147,7 +150,7 @@ class robust_mpc:
         """
 
         # Find param_t using the bijection algo
-        param_t = bijection_algo(self.Pt)
+        param_t = bijection_algo(self.Pt, self.kld_thresh)
 
         # Determine Vt
         self.Vt = np.linalg.pinv(np.linalg.pinv(self.Pt) - (param_t * np.eye(4, 4)))

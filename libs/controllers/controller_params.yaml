@@ -1,0 +1,31 @@
+# prediction and control horizons
+Hp: 10
+Hu: 3
+
+# Threshold for KL divergence. In the reference literature, this is mentioned as 'c'
+kld_thresh: 0.1
+
+# Define action model noise standard of deviation
+act_model_std: 0.03   # 3e-2
+
+# Define action model noise standard of deviation
+sen_model_std: 0.03   # 3e-2
+
+# Define hand tunable weight matrices
+robust:
+  1:
+    Rk: 0.1
+    Qk: 50000    # 5e4
+
+  2:
+    Rk: 0.01
+    Qk: 5000     # 5e3
+
+vanilla:
+  1:
+    Rk: 0.1
+    Qk: 10000    # 1e4
+
+  2:
+    Rk: 0.01
+    Qk: 5000     # 5e3
