@@ -77,7 +77,8 @@ t_array = np.arange(tspan[0], tspan[1], servo_system.model_params["dt"])
 
 # controller
 controller = vanilla_mpc(disc_lin_state_space,
-                         controller_config_params, Rk, Qk, init_Pt, init_xtt_1)
+                         controller_config_params, Rk, Qk, init_Pt, init_xtt_1,
+                         [-servo_system.model_params["Vmax"], servo_system.model_params["Vmax"]])
 
 # Simulation loop
 for e, t in enumerate(t_array):

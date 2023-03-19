@@ -3,13 +3,12 @@
 """
 
 import numpy as np
-import plants.servo_mech_system.system_config as servo_system
 
 
 class vanilla_mpc:
     """ Class definition of a standard MPC controller """
 
-    def __init__(self, disc_lin_state_space, config_params, Rk, Qk, init_Pt, init_xtt_1):
+    def __init__(self, disc_lin_state_space, config_params, Rk, Qk, init_Pt, init_xtt_1, control_bounds=None):
         """
             Constructor
 
@@ -63,6 +62,10 @@ class vanilla_mpc:
 
         # Store KLD threshold
         self.kld_thresh = config_params["kld_thresh"]
+
+        # Store control signal lower and upper bounds. If not None, store in index 0 and index 1 respectively
+        self.control_bounds = control_bounds
+
 
     def init_controller(self, Rk, Qk):
         """
@@ -131,11 +134,12 @@ class vanilla_mpc:
         # Find optimal control input
         utt = np.matmul(W, np.matmul(np.linalg.inv(term1), term2))
 
-        # Clamp calculated control input to max
-        if (utt > servo_system.model_params["Vmax"]):
-            utt = np.array([[servo_system.model_params["Vmax"]]])
-        elif (utt < -servo_system.model_params["Vmax"]):
-            utt = np.array([[-servo_system.model_params["Vmax"]]])
+        # Clamp calculated control input to bounds if not None
+        if(self.control_bounds is not None):
+            if ((utt > self.control_bounds[1])):
+                utt = np.array([[self.control_bounds[1]]])
+            elif (utt < self.control_bounds[0]):
+                utt = np.array([[self.control_bounds[0]]])
 
         return utt
 
