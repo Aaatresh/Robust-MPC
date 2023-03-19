@@ -17,4 +17,3 @@ def const_setpoint_gen(const_value=0, Hp=5):
     sp_signal = const_value * np.ones((Hp, 1))
 
     return sp_signal
-

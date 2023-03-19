@@ -39,7 +39,8 @@ if(not (args.s == 1 or args.s == 2)):
 CONTROLLER_NAME = "robust"
 
 # Convert the model to discrete-time
-A, B, C = cnt_to_dst(servo_system.Ac, servo_system.Bc, servo_system.C, servo_system.dt)
+cont_lin_state_space = servo_system.init_lin_dyn()
+disc_lin_state_space = cnt_to_dst(cont_lin_state_space, servo_system.dt)
 
 # Define a constant setpoint value. This can be changed based on the type of setpoint tracking desired. This signal
 # can be made more complex as well.
@@ -50,8 +51,8 @@ r = np.pi / 2
 Rk, Qk = get_controller_weights(CONTROLLER_NAME, args.s)
 
 # Initial state covariance and mean
-init_Pt = np.eye(A.shape[0])  # Initial state covariance
-init_xtt_1 = 3e-2 * np.random.randn(A.shape[0], 1)  # Initial state mean: TODO: Generalize standard of deviation
+init_Pt = np.eye(disc_lin_state_space["A"].shape[0])  # Initial state covariance
+init_xtt_1 = 3e-2 * np.random.randn(disc_lin_state_space["A"].shape[0], 1)  # Initial state mean: TODO: Generalize standard of deviation
 
 
 # Initialize yt
@@ -68,7 +69,7 @@ all_covs = []
 t_array = np.arange(tspan[0], tspan[1], servo_system.dt)
 
 # controller
-controller = robust_mpc(A, B, C, Rk, Qk, Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1)
+controller = robust_mpc(disc_lin_state_space, Rk, Qk, Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1)
 
 # Simulation loop
 for e, t in enumerate(t_array):
@@ -84,12 +85,12 @@ for e, t in enumerate(t_array):
 
     # Apply utt to the system
     if(args.s == 1):
-        vtt = np.random.randn(A.shape[0], 1)
-        next_xtt = np.matmul(A, xtt) + (B * utt) + np.matmul(controller.G1, vtt)
-        next_yt = np.matmul(C, next_xtt) + np.matmul(controller.D1, vtt)
+        vtt = np.random.randn(disc_lin_state_space["A"].shape[0], 1)
+        next_xtt = np.matmul(disc_lin_state_space["A"], xtt) + (disc_lin_state_space["B"] * utt) + np.matmul(controller.G1, vtt)
+        next_yt = np.matmul(disc_lin_state_space["C"], next_xtt) + np.matmul(controller.D1, vtt)
     elif(args.s == 2):
-        next_xtt = xtt + (servo_system.dt * servo_system.non_lin_dyn(xtt, utt, e + 1))
-        next_yt = np.matmul(C, next_xtt)
+        next_xtt = xtt + (servo_system.dt * servo_system.nonlin_dyn_step(xtt, utt, e + 1))
+        next_yt = np.matmul(disc_lin_state_space["C"], next_xtt)
 
     # Store variables for plotting
     all_Us.append(utt[0, 0])

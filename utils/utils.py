@@ -56,7 +56,6 @@ def eval_kld(Pt, param_t, kld_thresh):
         the radius of a ball around the nominal model.
     """
 
-    # term1 = -np.log(np.linalg.det(np.linalg.inv(np.eye(2, 2) - (param_t * Pt))))
     term1 = np.log(np.linalg.det(np.eye(4, 4) - (param_t * Pt)))
     term2 = np.trace(np.linalg.inv(np.eye(4, 4) - (param_t * Pt)) - np.eye(4, 4))
 
