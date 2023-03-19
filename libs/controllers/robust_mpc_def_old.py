@@ -1,22 +1,21 @@
 """
-    Module with vanilla MPC definition.
+    Module with robust MPC definition.
 """
 
-import numpy as np
+from utils.utils import *
 
 
-class vanilla_mpc:
-    """ Class definition of a standard MPC controller """
+class robust_mpc:
+    """ Class definition of a robust MPC controller """
 
-    def __init__(self, disc_lin_state_space, config_params, Rk, Qk, init_Pt, init_xtt_1, control_bounds=None):
+    def __init__(self, disc_lin_state_space, controller_config_params, Rk, Qk, init_Pt, init_xtt_1, control_bounds=None):
         """
             Constructor
 
             Args:
-                disc_lin_state_space - A dictionary representing the discretized linear state space model with keys:
-                    'A': A - Discrete time 'A' state space matrix.
-                    'B': B - Discrete time 'B' state space matrix.
-                    'C': C - Discrete time 'C' state space matrix.
+                A - Discrete time 'A' state space matrix.
+                B - Discrete time 'B' state space matrix.
+                C - Discrete time 'C' state space matrix.
 
                 Rk - Control input gain on diagonal.
                 Qk - Output gain on diagonal.
@@ -38,8 +37,8 @@ class vanilla_mpc:
         self.B = disc_lin_state_space["B"]
         self.C = disc_lin_state_space["C"]
 
-        self.Hu = config_params["Hu"]
-        self.Hp = config_params["Hp"]
+        self.Hu = controller_config_params["Hu"]
+        self.Hp = controller_config_params["Hp"]
 
         self.Qk_mat = None
         self.Rk_mat = None
@@ -51,8 +50,8 @@ class vanilla_mpc:
         self.init_controller(Rk, Qk)
 
         # Standard deviation of state and measurement noise
-        self.G1 = config_params["act_model_std"] * np.diag(np.array([0, 1, 1, 1]))
-        self.D1 = config_params["sen_model_std"] * np.array([[1, 0, 0, 0]])
+        self.G1 = controller_config_params["act_model_std"] * np.diag(np.array([0, 1, 1, 1]))
+        self.D1 = controller_config_params["sen_model_std"] * np.array([[1, 0, 0, 0]])
 
         # Initial state covariance and mean
         self.Pt = init_Pt
@@ -60,8 +59,8 @@ class vanilla_mpc:
         # state of the system
         self.xtt = init_xtt_1
 
-        # Store KLD threshold
-        # self.kld_thresh = config_params["kld_thresh"]
+        # store KLD threshold
+        self.kld_thresh = controller_config_params["kld_thresh"]
 
         # Store control signal lower and upper bounds. If not None, store in index 0 and index 1 respectively
         self.control_bounds = control_bounds
@@ -69,7 +68,7 @@ class vanilla_mpc:
 
     def init_controller(self, Rk, Qk):
         """
-            Function to initialize the standard MPC.
+            Function to initialize the robust MPC.
 
             Args:
                 Rk - Diagonal elementwise control input gain
@@ -112,7 +111,7 @@ class vanilla_mpc:
     def get_utt(self, xtt, rt):
         """
            Solve the unconstrained MPC problem through a closed form expression to find the control input
-           given the state estimate at that time step.
+           given the state estimate at that time step in a robust Kalman filter.
 
            Args:
                xtt - predicted state
@@ -145,7 +144,7 @@ class vanilla_mpc:
 
     def state_prediction(self, yt):
         """
-            Function that performs the state prediction step in a standard Kalman filter.
+            Function that performs the state prediction step in a robust Kalman filter.
 
             Args:
                 yt - output of the system
@@ -154,9 +153,15 @@ class vanilla_mpc:
                 xtt - Predicted state of the system.
         """
 
+        # Find param_t using the bijection algo
+        param_t = bijection_algo(self.Pt, self.kld_thresh)
+
+        # Determine Vt
+        self.Vt = np.linalg.pinv(np.linalg.pinv(self.Pt) - (param_t * np.eye(4, 4)))
+
         # Find Lt
-        term1 = np.matmul(self.Pt, self.C.T)
-        term2 = np.linalg.pinv(np.matmul(self.C, np.matmul(self.Pt, self.C.T)) + (np.matmul(self.D1, self.D1.T)))
+        term1 = np.matmul(self.Vt, self.C.T)
+        term2 = np.linalg.pinv(np.matmul(self.C, np.matmul(self.Vt, self.C.T)) + np.matmul(self.D1, self.D1.T))
         self.Lt = np.matmul(term1, term2)
 
         # Prediction step to find xtt
@@ -164,10 +169,10 @@ class vanilla_mpc:
 
         return xtt
 
-    def state_update(self, utt, yt):
 
+    def state_update(self, utt, yt):
         """
-            Function that performs the state update step.
+            Function that performs the state update step in a robust Kalman filter.
 
             Args:
                 utt - Optimal control input.
@@ -181,13 +186,14 @@ class vanilla_mpc:
         kg = np.matmul(self.A, self.Lt)
 
         # Update pt
-        term1 = np.matmul(self.A, np.matmul(self.Pt, self.A.T))
-        term2 = np.matmul(self.C, np.matmul(self.Pt, self.C.T)) + np.matmul(self.D1, self.D1.T)
+        term1 = np.matmul(self.A, np.matmul(self.Vt, self.A.T))
+        term2 = np.matmul(self.C, np.matmul(self.Vt, self.C.T)) + np.matmul(self.D1, self.D1.T)
         term3 = np.matmul(kg, np.matmul(term2, kg.T))
         self.Pt = term1 - term3 + np.matmul(self.G1, self.G1.T)
 
         # Prediction step
         self.xtt = np.matmul(self.A, self.xtt) + (kg * (yt - np.matmul(self.C, self.xtt))) + (self.B * utt)
+
 
     def step(self, yt, rt):
 
