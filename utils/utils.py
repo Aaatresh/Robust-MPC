@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.linalg
-# from libs.controllers.controller_config import kld_thresh
+# from libs.mpc_controllers.controller_config import kld_thresh
 
 
 def cnt_to_dst(cont_lin_state_space, dt):
@@ -111,6 +111,9 @@ def load_yaml(filepath):
 
     # Open and read yaml file data
     with open(filepath, "r") as f:
-        data = yaml.safe_load(f)
+        try:
+            data = yaml.safe_load(f)
+        except yaml.YAMLError as exception:
+            raise exception
 
     return data

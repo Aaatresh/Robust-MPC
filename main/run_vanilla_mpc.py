@@ -1,9 +1,9 @@
 """
     Run the vanilla MPC in different scenarios. For more information about the scenarios, refer README.md.
 """
+from libs.mpc_controllers.validate import validate_control_params
 
-# Importing necessary libraries
-
+""" Importing necessary libraries """
 ## To attach root of this repository to PYTHONPATH
 import sys
 import os
@@ -16,9 +16,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ## Import controller, controller configuration, and plant configuration
-# from libs.controllers.controller_config import config_params
 from plants.servo_mech_system import system_config as servo_system
-from libs.controllers.vanilla_mpc_def import vanilla_mpc
+from libs.mpc_controllers.vanilla_mpc_def import vanilla_mpc
 
 ## Import utils
 from utils.utils import cnt_to_dst, load_yaml
@@ -37,9 +36,16 @@ args = parser.parse_args()
 # Check value of '-s' argument
 if(not (args.s == 1 or args.s == 2)):
     raise ValueError("\'-s\' argument must be either 1 or 2.")
+if(args.savepath is not None and not os.path.isdir(args.savepath)):
+    raise ValueError("Directory provided to store plots does not exist.")
+if(not os.path.exists(args.controller_config_filepath)):
+    raise ValueError("Controller configuration YAML file does not exist.")
+elif(args.controller_config_filepath.split(".")[-1].lower() != "yaml"):
+    raise ValueError("Controller configuration file must be of YAML format. Please make sure that the file name has the \".yaml\" extension.")
+
 
 CONTROLLER_NAME = "vanilla"
-controller_config_params = load_yaml(args.controller_config_filepath)
+controller_config_params = validate_control_params(load_yaml(args.controller_config_filepath))
 
 
 # Convert the model to discrete-time

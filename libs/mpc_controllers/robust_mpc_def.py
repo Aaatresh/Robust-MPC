@@ -3,7 +3,7 @@
 """
 
 from utils.utils import *
-from libs.controllers.vanilla_mpc_def import vanilla_mpc
+from libs.mpc_controllers.vanilla_mpc_def import vanilla_mpc
 
 
 class robust_mpc(vanilla_mpc):

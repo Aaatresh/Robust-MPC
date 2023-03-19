@@ -8,6 +8,9 @@
 import sys
 import os
 from pathlib import Path
+
+from libs.mpc_controllers.validate import validate_control_params
+
 REPOROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(REPOROOT))
 
@@ -16,8 +19,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ## Import controller, controller configuration, and plant configuration
-from libs.controllers.robust_mpc_def import robust_mpc
-# from libs.controllers.controller_config import config_params
+from libs.mpc_controllers.robust_mpc_def import robust_mpc
+# from libs.mpc_controllers.controller_config import config_params
 from plants.servo_mech_system import system_config as servo_system
 
 ## Import utils
@@ -37,9 +40,15 @@ args = parser.parse_args()
 # Check value of '-s' argument
 if(not (args.s == 1 or args.s == 2)):
     raise ValueError("\'-s\' argument must be either 1 or 2.")
+if(args.savepath is not None and not os.path.isdir(args.savepath)):
+    raise ValueError("Directory provided to store plots does not exist.")
+if(not os.path.exists(args.controller_config_filepath)):
+    raise ValueError("Controller configuration YAML file does not exist.")
+elif(args.controller_config_filepath.split(".")[-1].lower() != "yaml"):
+    raise ValueError("Controller configuration file must be of YAML format. Please make sure that the file name has the \".yaml\" extension.")
 
 CONTROLLER_NAME = "robust"
-controller_config_params = load_yaml(args.controller_config_filepath)
+controller_config_params = validate_control_params(load_yaml(args.controller_config_filepath))
 
 # Convert the model to discrete-time
 cont_lin_state_space = servo_system.init_lin_dyn()
