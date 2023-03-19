@@ -2,3 +2,4 @@
 libs/**/__pycache__/
 utils/**/__pycache__/
 tmp
+plants/**/__pycache__/

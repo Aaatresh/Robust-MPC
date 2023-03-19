@@ -6,6 +6,7 @@
 
 ## To attach root of this repository to PYTHONPATH
 import sys
+import os
 from pathlib import Path
 REPOROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(REPOROOT))
@@ -16,25 +17,26 @@ import matplotlib.pyplot as plt
 ## Import controller, controller configuration, and plant configuration
 from libs.controllers.robust_mpc_def import robust_mpc
 from libs.controllers.controller_config import *
-from libs.servo_mech_system import system_config as servo_system
+from plants.servo_mech_system import system_config as servo_system
 
 ## Import utils
 from utils.utils import *
 
 ## Import setpoint generation function
-from libs.servo_mech_system.setpoint_generator import const_setpoint_gen
+from plants.servo_mech_system.setpoint_generator import const_setpoint_gen
 
 ## Import argument parser and setup
 import argparse
 parser = argparse.ArgumentParser("Run robust MPC in different scenarios. For information about scenarios, refer to README.md.")
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")
-
+parser.add_argument("--savepath",type=str, default=None, help="Directory in which plots are to be saved.")
 args = parser.parse_args()
 
 # Check value of '-s' argument
 if(not (args.s == 1 or args.s == 2)):
     raise ValueError("\'-s\' argument must be either 1 or 2.")
 
+CONTROLLER_NAME = "robust"
 
 # Convert the model to discrete-time
 A, B, C = cnt_to_dst(servo_system.Ac, servo_system.Bc, servo_system.C, servo_system.dt)
@@ -45,7 +47,7 @@ r = np.pi / 2
 
 
 # Weight matrices Rk and Qk
-Rk, Qk = get_controller_weights(args.s)
+Rk, Qk = get_controller_weights(CONTROLLER_NAME, args.s)
 
 # Initial state covariance and mean
 init_Pt = np.eye(A.shape[0])  # Initial state covariance
@@ -105,10 +107,16 @@ plt.ylabel("Angle (rad)")
 plt.xlabel("Time (sec)")
 plt.legend()
 
+if(args.savepath is not None):
+    plt.savefig(os.path.join(args.savepath, f"y_vs_t_{CONTROLLER_NAME}_MPC_Scenario_{args.s}.png"))
+
 plt.figure()
 plt.plot(all_Us)
 plt.title("Plot of control input versus time")
 plt.ylabel("Input voltage (V)")
 plt.xlabel("Time (sec)")
+
+if(args.savepath is not None):
+    plt.savefig(os.path.join(args.savepath, f"u_vs_t_{CONTROLLER_NAME}_MPC_Scenario_{args.s}.png"))
 
 plt.show()

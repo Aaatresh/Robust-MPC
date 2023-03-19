@@ -14,22 +14,30 @@ sen_model_std = 3e-2
 
 # Define elements for weight matrices for two different scenarios
 
-def get_controller_weights(s):
+def get_controller_weights(controller_name, scenario):
     """
     Function to obtain controller weights depending on the scenario under consideration
 
     Args:
-        s - Scenario. Can be either 1 or 2.
+        controller_name - Name of MPC controller, vanilla or robust
+        scenario - Scenario under consideration. Can be either 1 or 2.
 
     Returns:
         Controller weights
     """
-
-    if(s == 1):
-        Rk = 0.1
-        Qk = 5e4
+    if(controller_name == "robust"):
+        if(scenario == 1):
+            Rk = 0.1
+            Qk = 5e4
+        else:
+            Rk = 0.01
+            Qk = 5e3
     else:
-        Rk = 0.01
-        Qk = 5e3
+        if(scenario == 1):
+            Rk = 0.1
+            Qk = 1e4
+        else:
+            Rk = 0.01
+            Qk = 5e3
 
     return Rk, Qk

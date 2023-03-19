@@ -3,26 +3,38 @@ import scipy.linalg
 from libs.controllers.controller_config import kld_thresh
 
 
-def cnt_to_dst(Ac, Bc, C, dt):
+def cnt_to_dst(cont_lin_state_space, dt):
 
     """
         Function to convert a continuous time state space model to a discrete time state space model.
             x_dot = Ac(x) + Bc(u)
 
         Args:
-            Ac - Continuous time 'A' matrix.
-            Bc - Continous time 'B' matrix.
+            cont_lin_state_space - Dictionary containing the following as keys
+                'Ac': Ac - Continuous time 'A' matrix.
+                'Bc': Bc - Continous time 'B' matrix.
+                'C': C - 'C' matrix
+
             dt - sampling time for discretization.
 
         Returns:
             Ad - Discrete time 'A' matrix
             Bd - Discrete time 'B' matrix
+            C - 'C' matrix
     """
 
-    Ad = scipy.linalg.expm(Ac * dt)
-    Bd = np.matmul(np.linalg.pinv(Ac), np.matmul((scipy.linalg.expm(Ac * dt) - np.eye(Ac.shape[0], Ac.shape[1])), Bc))
+    Ad = scipy.linalg.expm(cont_lin_state_space["Ac"] * dt)
+    Bd = np.matmul(np.linalg.pinv(cont_lin_state_space["Ac"]),
+                   np.matmul((scipy.linalg.expm(cont_lin_state_space["Ac"] * dt) - np.eye(cont_lin_state_space["Ac"].shape[0],
+                                                                                     cont_lin_state_space["Ac"].shape[1])), cont_lin_state_space["Bc"]))
 
-    return Ad, Bd, C
+    disc_lin_state_space = {
+        "A": Ad,
+        "B": Bd,
+        "C": cont_lin_state_space["C"]
+    }
+
+    return disc_lin_state_space
 
 
 def sign(x):
@@ -83,3 +95,23 @@ def bijection_algo(Pt):
             param2 = param_t
 
     return param_t
+
+
+def load_yaml(filepath):
+    """
+    Function to open yaml file and get data from it.
+
+    Args:
+        filepath - Relative file path to yaml file.
+
+    Returns:
+        Dictionary containing data stored in yaml file.
+    """
+    # Import pyyaml
+    import yaml
+
+    # Open and read yaml file data
+    with open(filepath, "r") as f:
+        data = yaml.safe_load(f)
+
+    return data

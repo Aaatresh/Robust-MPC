@@ -2,8 +2,7 @@
     Module with robust MPC definition.
 """
 
-import numpy as np
-from libs.servo_mech_system import system_config as servo_system
+from plants.servo_mech_system import system_config as servo_system
 
 from utils.utils import *
 

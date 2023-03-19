@@ -6,6 +6,7 @@
 
 ## To attach root of this repository to PYTHONPATH
 import sys
+import os
 from pathlib import Path
 REPOROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(REPOROOT))
@@ -15,28 +16,31 @@ import matplotlib.pyplot as plt
 
 ## Import controller, controller configuration, and plant configuration
 from libs.controllers.controller_config import *
-from libs.servo_mech_system import system_config as servo_system
+from plants.servo_mech_system import system_config as servo_system
 from libs.controllers.vanilla_mpc_def import vanilla_mpc
 
 ## Import utils
 from utils.utils import *
 
 ## Import setpoint generation function
-from libs.servo_mech_system.setpoint_generator import const_setpoint_gen
+from plants.servo_mech_system.setpoint_generator import const_setpoint_gen
 
 ## Import argument parser and setup
 import argparse
 parser = argparse.ArgumentParser("Run vanilla MPC in different scenarios. For information about scenarios, refer to README.md.")
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")
+parser.add_argument("--savepath",type=str, default=None, help="Directory in which plots are to be saved.")
 args = parser.parse_args()
 
 # Check value of '-s' argument
 if(not (args.s == 1 or args.s == 2)):
     raise ValueError("\'-s\' argument must be either 1 or 2.")
 
+CONTROLLER_NAME = "vanilla"
 
 # Convert the model to discrete-time
-A, B, C = cnt_to_dst(servo_system.Ac, servo_system.Bc, servo_system.C, servo_system.dt)
+cont_lin_state_space = servo_system.init_lin_dyn()
+disc_lin_state_space = cnt_to_dst(cont_lin_state_space, servo_system.dt)
 
 # Define a constant setpoint value. This can be changed based on the type of setpoint tracking desired. This signal
 # can be made more complex as well.
@@ -50,23 +54,25 @@ next_yt = y0
 # Simulation time parameters
 tspan = [0, 20]
 
+# Weight matrices Rk and Qk
+Rk, Qk = get_controller_weights(CONTROLLER_NAME, args.s)
+
 if(args.s == 1):
-    # Weight matrices Rk and Qk
-    Rk = 0.1
-    Qk = 1e4
+    # # Weight matrices Rk and Qk
+    # Rk = 0.1
+    # Qk = 1e4
 
     # Initial state covariance and mean
-    init_Pt = 1e-4 * np.eye(A.shape[0])
-    init_xtt_1 = 3e-2 * np.random.randn(A.shape[0], 1)
+    init_Pt = 1e-4 * np.eye(disc_lin_state_space["A"].shape[0])
+    init_xtt_1 = 3e-2 * np.random.randn(disc_lin_state_space["A"].shape[0], 1)
 
 elif(args.s == 2):
-    # Weight matrices Rk and Qk
-    Rk = 0.01
-    Qk = 5e3
+    # Rk = 0.01
+    # Qk = 5e3
 
     # Initial state covariance and mean
-    init_Pt = np.eye(A.shape[0])
-    init_xtt_1 = 1e-2 * np.random.randn(A.shape[0], 1)
+    init_Pt = np.eye(disc_lin_state_space["A"].shape[0])
+    init_xtt_1 = 1e-2 * np.random.randn(disc_lin_state_space["A"].shape[0], 1)
 
 
 # Create empty lists to store relevant variables at teach time step
@@ -77,7 +83,8 @@ all_covs = []
 t_array = np.arange(tspan[0], tspan[1], servo_system.dt)
 
 # controller
-controller = vanilla_mpc(A, B, C, Rk, Qk, Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1)
+controller = vanilla_mpc(disc_lin_state_space, Rk, Qk,
+                         Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1)
 
 # Simulation loop
 for e, t in enumerate(t_array):
@@ -94,12 +101,12 @@ for e, t in enumerate(t_array):
 
     # Apply utt to the system
     if(args.s == 1):
-        vtt = np.random.randn(A.shape[0], 1)
-        next_xtt = np.matmul(A, xtt) + (B * utt) + np.matmul(controller.G1, vtt)
-        next_yt = np.matmul(C, next_xtt) + np.matmul(controller.D1, vtt)
+        vtt = np.random.randn(disc_lin_state_space["A"].shape[0], 1)
+        next_xtt = np.matmul(disc_lin_state_space["A"], xtt) + (disc_lin_state_space["B"] * utt) + np.matmul(controller.G1, vtt)
+        next_yt = np.matmul(disc_lin_state_space["C"], next_xtt) + np.matmul(controller.D1, vtt)
     elif(args.s == 2):
-        next_xtt = xtt + (servo_system.dt * servo_system.non_lin_dyn(xtt, utt, e + 1))
-        next_yt = np.matmul(C, next_xtt)
+        next_xtt = xtt + (servo_system.dt * servo_system.nonlin_dyn_step(xtt, utt, e + 1))
+        next_yt = np.matmul(disc_lin_state_space["C"], next_xtt)
 
 
     # Store variables for plotting
@@ -118,10 +125,17 @@ plt.ylabel("Angle (rad)")
 plt.xlabel("Time (sec)")
 plt.legend()
 
+if(args.savepath is not None):
+    plt.savefig(os.path.join(args.savepath, f"y_vs_t_{CONTROLLER_NAME}_MPC_Scenario_{args.s}.png"))
+
+
 plt.figure()
 plt.plot(all_Us)
 plt.title("Plot of control input versus time")
 plt.ylabel("Input voltage (V)")
 plt.xlabel("Time (sec)")
+
+if(args.savepath is not None):
+    plt.savefig(os.path.join(args.savepath, f"u_vs_t_{CONTROLLER_NAME}_MPC_Scenario_{args.s}.png"))
 
 plt.show()

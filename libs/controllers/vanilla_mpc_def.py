@@ -3,20 +3,21 @@
 """
 
 import numpy as np
-import libs.servo_mech_system.system_config as servo_system
+import plants.servo_mech_system.system_config as servo_system
 
 
 class vanilla_mpc:
     """ Class definition of a standard MPC controller """
 
-    def __init__(self, A, B, C, Rk, Qk, Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1):
+    def __init__(self, disc_lin_state_space, Rk, Qk, Hu, Hp, act_model_std, sen_model_std, init_Pt, init_xtt_1):
         """
             Constructor
 
             Args:
-                A - Discrete time 'A' state space matrix.
-                B - Discrete time 'B' state space matrix.
-                C - Discrete time 'C' state space matrix.
+                disc_lin_state_space - A dictionary representing the discretized linear state space model with keys:
+                    'A': A - Discrete time 'A' state space matrix.
+                    'B': B - Discrete time 'B' state space matrix.
+                    'C': C - Discrete time 'C' state space matrix.
 
                 Rk - Control input gain on diagonal.
                 Qk - Output gain on diagonal.
@@ -34,9 +35,9 @@ class vanilla_mpc:
                 -
         """
 
-        self.A = A
-        self.B = B
-        self.C = C
+        self.A = disc_lin_state_space["A"]
+        self.B = disc_lin_state_space["B"]
+        self.C = disc_lin_state_space["C"]
 
         self.Hu = Hu
         self.Hp = Hp
