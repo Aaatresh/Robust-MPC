@@ -14,7 +14,7 @@ def check_file_format(control_config_params):
     # Check if keys are in dictionary
     for key in necessary_keys:
         if (key not in control_config_params.keys() and key not in necessary_keys_controllers):
-            raise ValueError(f"Key: {key} not found in YAML file.")
+            raise KeyError(f"Key: {key} not found in YAML file.")
 
     controller_keys_found = []
     keys_not_found = []
@@ -25,7 +25,7 @@ def check_file_format(control_config_params):
             keys_not_found.append(controller_key)
 
     if ((len(necessary_keys_controllers) - len(controller_keys_found)) > 1):
-        raise ValueError("At least one MPC controller name required.")
+        raise KeyError("At least one MPC controller name required.")
     elif ((len(necessary_keys_controllers) - len(controller_keys_found)) == 1):
         warnings.warn(f"Key: {keys_not_found[0]}, not found. Please make sure that this controller is not used until "
                       f"relevant configuration parameters are provided in the YAML controller configuration file.")

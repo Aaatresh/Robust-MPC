@@ -18,7 +18,7 @@ def validate_params():
     model_types = ["linear_model", "nonlinear_model"]
     for key in necessary_keys + model_types:
         if(key not in model_params.keys()):
-            raise ValueError(f"Key: [{key}] required for simulating this system.")
+            raise KeyError(f"Key: [{key}] required for simulating this system.")
         elif(key in necessary_keys and type(model_params[key]) not in [float, int]):
             raise TypeError(f"Value of key: [{key}] must be either of type float or int.")
         elif(key in necessary_keys and model_params[key] < 0):
@@ -32,7 +32,7 @@ def validate_params():
     for model in model_types:
         for subkey in model_keys[model]:
             if(subkey not in model_params[model].keys()):
-                raise ValueError(f"Key: [{model}][{subkey}] required for simulating this system.")
+                raise KeyError(f"Key: [{model}][{subkey}] required for simulating this system.")
             elif(type(model_params[model][subkey]) not in [float, int]):
                 raise TypeError(f"Value of key: [{model}][{subkey}] must be either of type float or int.")
             elif(model_params[model][subkey] < 0):
