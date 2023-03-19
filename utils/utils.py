@@ -19,9 +19,10 @@ def cnt_to_dst(cont_lin_state_space, dt):
             dt - sampling time for discretization.
 
         Returns:
-            Ad - Discrete time 'A' matrix
-            Bd - Discrete time 'B' matrix
-            C - 'C' matrix
+            A dictionary 'disc_lin_state_space' that contains key-value pairs:
+                "Ad": Ad - Discrete time 'A' matrix
+                "Bd": Bd - Discrete time 'B' matrix
+                "C": C - 'C' matrix
     """
 
     Ad = scipy.linalg.expm(cont_lin_state_space["Ac"] * dt)
@@ -121,6 +122,20 @@ def load_yaml(filepath):
 
 
 def visualize_controller(collected_data, args, CONTROLLER_NAME, setpoint):
+
+    """
+        Function to visualize data obtained from the end of a simulation with a controller.
+
+        Args:
+             collected_data - A list of iteratively collected data from the simulation. The format of this list is as
+                follows: [array of time steps, array of outputs, array of inputs, array of covariance predictions at each step].
+             args - Argument parser object
+             CONTROLLER_NAME - Name of controller. For ex., "robust" or "vanilla".
+             setpoint - Set point
+
+        Returns:
+            -
+    """
 
     t_array, all_Ys, all_Us, all_covs = collected_data
 

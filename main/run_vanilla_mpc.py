@@ -112,6 +112,7 @@ for e, t in enumerate(t_array):
     all_Us.append(utt[0, 0])
 
 
+# Visualize result of simulation
 collected_data = [t_array, all_Ys, all_Us, all_covs]
 visualize_controller(collected_data, args, CONTROLLER_NAME, r)
 

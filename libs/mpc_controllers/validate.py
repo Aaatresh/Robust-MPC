@@ -44,6 +44,10 @@ def check_file_format(control_config_params):
 
 def check_param_values(control_config_params):
 
+    """
+        Validate parameter values
+    """
+
     for key in necessary_keys:
         if(not type(control_config_params[key]) in [float, int]):
             raise TypeError(f"Data of key: {key} must be either float or int.")

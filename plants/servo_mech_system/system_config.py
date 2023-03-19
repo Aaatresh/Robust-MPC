@@ -4,7 +4,18 @@ import numpy as np
 
 class servo_mech_plant:
 
+    """
+    Class definition of a servo-mechanical system.
+    """
+
     def __init__(self, model_params_filepath):
+
+        """
+        Constructor.
+
+        Args:
+            model_params_filepath - Filepath to servo mechanical system model parameters.
+        """
 
         # Load all dynamics and model parameters from yaml file nad store in dictionary
         self.model_params = load_yaml(model_params_filepath)
@@ -122,6 +133,20 @@ class servo_mech_plant:
         return xdot
 
     def fwd_prop_lin_model(self, xtt, utt, G1, D1):
+        """
+            Forward propogate linear dynamics model by one time step given current state and control signal.
+
+            Args:
+                xtt - Current state
+                utt - Control signal at this time step
+                G1 - Standard deviation matrix associated with action model
+                D1 - Standard deviation matrix associated with sensor model
+
+            Returns:
+                next_xtt - Next state
+                next_yt - Next output
+        """
+
         vtt = np.random.randn(self.disc_lin_state_space["A"].shape[0], 1)
         next_xtt = np.matmul(self.disc_lin_state_space["A"], xtt) + (self.disc_lin_state_space["B"] * utt) + np.matmul(G1, vtt)
         next_yt = np.matmul(self.disc_lin_state_space["C"], next_xtt) + np.matmul(D1, vtt)
@@ -129,6 +154,17 @@ class servo_mech_plant:
         return next_xtt, next_yt
 
     def fwd_prop_nonlin_model(self, xtt, utt, e):
+        """
+            Forward propogate non-linear dynamics model by one time step given current state and control signal.
+
+            Args:
+                xtt - Current state
+                utt - Control signal at this time step
+                e - index number of time step
+            Returns:
+                next_xtt - Next state
+                next_yt - Next output
+        """
         next_xtt = xtt + (self.model_params["dt"] * self.nonlin_dyn_step(xtt, utt, e + 1))
         next_yt = np.matmul(self.disc_lin_state_space["C"], next_xtt)
 

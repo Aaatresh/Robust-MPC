@@ -6,6 +6,10 @@ import numpy as np
 
 
 class abstract_controller:
+    """
+        Abstract controller class.
+    """
+
     def __int__(self):
         self.init_controller()
         pass
@@ -25,22 +29,22 @@ class vanilla_mpc(abstract_controller):
             Constructor
 
             Args:
-                disc_lin_state_space - A dictionary representing the discretized linear state space model with keys:
-                    'A': A - Discrete time 'A' state space matrix.
-                    'B': B - Discrete time 'B' state space matrix.
-                    'C': C - Discrete time 'C' state space matrix.
+                disc_lin_state_space - Discretized linear state space model with key-value pairs:
+                    A - Discrete time 'A' state space matrix.
+                    B - Discrete time 'B' state space matrix.
+                    C - Discrete time 'C' state space matrix.
+
+                controller_config_params - Dictionary representing configuration parameters for this controller
 
                 Rk - Control input gain on diagonal.
                 Qk - Output gain on diagonal.
 
-                Hu - Prediction horizon associated with control input.
-                Hp - Prediction horizon associated with output.
-
-                act_model_std - Standard deviation of noise associated with action model.
-                act_model_std - Standard deviation of noise associated with sensor model.
-
                 init_Pt - Initialization of state estimate covariance matrix.
                 init_xtt_1 - Initialization of state estimate mean.
+
+                control_bounds - Default value = None. This represents bounds to be applied on the control signal and
+                    clamp it to this. When provided as a list, the first element represents the lower bound and the
+                    second represents the upper bound.
 
             Returns:
                 -
