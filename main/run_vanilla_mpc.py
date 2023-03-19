@@ -49,8 +49,10 @@ controller_config_params = validate_control_params(load_yaml(args.controller_con
 
 
 # Convert the model to discrete-time
+servo_system.validate_params()
 cont_lin_state_space = servo_system.init_lin_dyn()
 disc_lin_state_space = cnt_to_dst(cont_lin_state_space, servo_system.model_params["dt"])
+
 
 # Define a constant setpoint value. This can be changed based on the type of setpoint tracking desired. This signal
 # can be made more complex as well.

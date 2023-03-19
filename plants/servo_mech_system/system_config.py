@@ -4,8 +4,39 @@ import numpy as np
 """ Load Model """
 # Define path to model parameter yaml file
 model_params_filepath = "/home/aaa/aatresh/umich_courses/ae567/projects/project4/public_github_repo/Robust-MPC/plants/servo_mech_system/model_params.yaml"
+
 # Load all dynamics and model parameters from yaml file nad store in dictionary
 model_params = load_yaml(model_params_filepath)
+
+
+def validate_params():
+    """
+    Function to validate model parameters.
+    """
+
+    necessary_keys = ["dt", "Vmax"]
+    model_types = ["linear_model", "nonlinear_model"]
+    for key in necessary_keys + model_types:
+        if(key not in model_params.keys()):
+            raise ValueError(f"Key: [{key}] required for simulating this system.")
+        elif(key in necessary_keys and type(model_params[key]) not in [float, int]):
+            raise TypeError(f"Value of key: [{key}] must be either of type float or int.")
+        elif(key in necessary_keys and model_params[key] < 0):
+            raise ValueError(f"Key: [{key}] must be greater than or equal to 0.")
+
+    model_keys = {
+        "linear_model": ['L', 'J_m', 'beta_m', 'R', 'Kt', 'rho', 'k_theta', 'J_l', 'beta_l'],
+        "nonlinear_model": ['eps_max', 'eps_min', 'L', 'J_m', 'beta_m', 'R', 'Kt', 'rho', 'k_theta',
+                            'J_l', 'beta_l', 'alpha_l0', 'alpha_l1', 'alpha_l2', 'alpha_m0', 'alpha_m1', 'alpha_m2']
+    }
+    for model in model_types:
+        for subkey in model_keys[model]:
+            if(subkey not in model_params[model].keys()):
+                raise ValueError(f"Key: [{model}][{subkey}] required for simulating this system.")
+            elif(type(model_params[model][subkey]) not in [float, int]):
+                raise TypeError(f"Value of key: [{model}][{subkey}] must be either of type float or int.")
+            elif(model_params[model][subkey] < 0):
+                raise ValueError(f"Key: [{model}][{subkey}] must be greater than or equal to 0.")
 
 
 def init_lin_dyn():
