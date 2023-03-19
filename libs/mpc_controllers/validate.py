@@ -35,7 +35,6 @@ def check_file_format(control_config_params):
             raise ValueError(
                 f"All sub-keys: {necessary_sub_keys} not found with key: {key} in YAML controller configuration file.")
         else:
-
             for subkey in necessary_sub_keys:
                 if (list(control_config_params[key][subkey].keys()) != necessary_sub_sub_keys):
                     raise ValueError(

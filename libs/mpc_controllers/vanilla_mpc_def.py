@@ -5,7 +5,19 @@
 import numpy as np
 
 
-class vanilla_mpc:
+class abstract_controller:
+    def __int__(self):
+        self.init_controller()
+        pass
+
+    def init_controller(self):
+        pass
+
+    def get_utt(self):
+        pass
+
+
+class vanilla_mpc(abstract_controller):
     """ Class definition of a standard MPC controller """
 
     def __init__(self, disc_lin_state_space, config_params, Rk, Qk, init_Pt, init_xtt_1, control_bounds=None):
