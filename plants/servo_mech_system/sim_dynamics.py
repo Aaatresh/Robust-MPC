@@ -11,12 +11,13 @@ sys.path.append(str(REPOROOT))
 
 import numpy as np
 import matplotlib.pyplot as plt
-import system_config as servo_mech
+from system_config import servo_mech_plant
 from utils.utils import cnt_to_dst
 import argparse
 
 parser = argparse.ArgumentParser("Simulation of linear or non-linear dynamics of a servo-mechanical system.")
 parser.add_argument("--nonlin", type=int, required=True, help="Simulate non-linear dynamics? If yes, pass 1, else pass 0.")
+parser.add_argument("--plant_config_filepath", type=str, default=None, required=True, help="Path to YAML plant configuration file.")
 args = parser.parse_args()
 
 if(not (args.nonlin == 0 or args.nonlin == 1)):
@@ -24,10 +25,13 @@ if(not (args.nonlin == 0 or args.nonlin == 1)):
 
 
 """ Load dynamics model """
-# Load continuous time linear dynamics model
-cont_lin_state_space = servo_mech.init_lin_dyn()
-# Discretize continuous time linear model
-disc_lin_state_space = cnt_to_dst(cont_lin_state_space, servo_mech.dt)
+# Initialize servo mechanical system
+servo_system = servo_mech_plant(args.plant_config_filepath)
+
+# # Load continuous time linear dynamics model
+# cont_lin_state_space = servo_mech.init_lin_dyn()
+# # Discretize continuous time linear model
+# disc_lin_state_space = cnt_to_dst(cont_lin_state_space, servo_mech.dt)
 
 # Sampling time
 T = 0.01
@@ -38,7 +42,7 @@ x0 = np.zeros((4, 1))
 if(args.nonlin):
     t_array = np.arange(0, 5, T)
 else:
-    t_array = np.arange(0, 5, servo_mech.dt)
+    t_array = np.arange(0, 5, servo_system.model_params["dt"])
 
 # Build an input control signal to forward propogate dynamics model. Uncomment a control signal from below for use.
 u_array = 100 * np.exp(-np.power(t_array - 2.5, 2))  # Gaussian input
@@ -51,13 +55,13 @@ Y = []
 for e, t_step in enumerate(t_array):
 
     if(args.nonlin):
-        xk = xk_1 + (T * servo_mech.nonlin_dyn_step(xk_1, u_array[e], e + 1))
+        xk = xk_1 + (T * servo_system.nonlin_dyn_step(xk_1, u_array[e], e + 1))
     else:
-        xk = np.matmul(disc_lin_state_space["A"], xk_1) + (disc_lin_state_space["B"] * u_array[e])
+        xk = np.matmul(servo_system.disc_lin_state_space["A"], xk_1) + (servo_system.disc_lin_state_space["B"] * u_array[e])
 
     xk_1 = xk
 
-    Y.append(np.matmul(disc_lin_state_space["C"], xk)[0])
+    Y.append(np.matmul(servo_system.disc_lin_state_space["C"], xk)[0])
 
 
 """ Visualization """
