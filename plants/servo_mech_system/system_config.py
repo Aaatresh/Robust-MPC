@@ -1,12 +1,10 @@
 from utils.utils import *
 
-
 # Sampling time for this system
 dt = 0.1
 #
 # Define bound on input voltage in volts
 Vmax = 220
-
 
 # Absolute file path to linear dynamics parameters yaml file
 lin_dyn_params_filepath = "/home/aaa/aatresh/umich_courses/ae567/projects/project4/public_github_repo/Robust-MPC/plants/servo_mech_system/linear_model_params.yaml"
