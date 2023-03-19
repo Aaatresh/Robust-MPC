@@ -2,32 +2,23 @@
     Run the robust MPC in different scenarios. For more information about the scenarios, refer README.md.
 """
 
-# Importing necessary libraries
-
-## To attach root of this repository to PYTHONPATH
+## Attach root of this repository to PYTHONPATH
 import sys
-import os
 from pathlib import Path
-
-from libs.mpc_controllers.validate import validate_control_params
-
 REPOROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(REPOROOT))
 
-## For data visualization and plotting
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-## Import controller, controller configuration, and plant configuration
+from libs.mpc_controllers.validate import validate_control_params
+
 from libs.mpc_controllers.robust_mpc_def import robust_mpc
-# from libs.mpc_controllers.controller_config import config_params
 from plants.servo_mech_system.system_config import servo_mech_plant
+from utils.utils import visualize_controller, load_yaml                             ## Import utility functions
+from plants.servo_mech_system.setpoint_generator import const_setpoint_gen          # Import setpoint generation function
 
-## Import utils
-from utils.utils import visualize_controller, load_yaml
-
-## Import setpoint generation function
-from plants.servo_mech_system.setpoint_generator import const_setpoint_gen
 
 ## Import argument parser and setup
 import argparse
