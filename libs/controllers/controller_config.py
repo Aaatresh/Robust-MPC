@@ -12,8 +12,6 @@ act_model_std = 3e-2
 sen_model_std = 3e-2
 
 
-# Define elements for weight matrices for two different scenarios
-
 def get_controller_weights(controller_name, scenario):
     """
     Function to obtain controller weights depending on the scenario under consideration

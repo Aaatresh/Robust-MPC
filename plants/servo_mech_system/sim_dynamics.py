@@ -9,9 +9,10 @@ import sys
 REPOROOT = Path(__file__).resolve().parents[2]
 sys.path.append(str(REPOROOT))
 
+import numpy as np
 import matplotlib.pyplot as plt
 import system_config as servo_mech
-from utils.utils import *
+from utils.utils import cnt_to_dst
 import argparse
 
 parser = argparse.ArgumentParser("Simulation of linear or non-linear dynamics of a servo-mechanical system.")

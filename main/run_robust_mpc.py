@@ -12,6 +12,7 @@ REPOROOT = Path(__file__).resolve().parents[1]
 sys.path.append(str(REPOROOT))
 
 ## For data visualization and plotting
+import numpy as np
 import matplotlib.pyplot as plt
 
 ## Import controller, controller configuration, and plant configuration
@@ -20,7 +21,7 @@ from libs.controllers.controller_config import *
 from plants.servo_mech_system import system_config as servo_system
 
 ## Import utils
-from utils.utils import *
+from utils.utils import cnt_to_dst
 
 ## Import setpoint generation function
 from plants.servo_mech_system.setpoint_generator import const_setpoint_gen
