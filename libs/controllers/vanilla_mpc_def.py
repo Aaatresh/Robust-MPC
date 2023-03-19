@@ -60,9 +60,6 @@ class vanilla_mpc:
         # state of the system
         self.xtt = init_xtt_1
 
-        # Store KLD threshold
-        # self.kld_thresh = config_params["kld_thresh"]
-
         # Store control signal lower and upper bounds. If not None, store in index 0 and index 1 respectively
         self.control_bounds = control_bounds
 
@@ -143,6 +140,7 @@ class vanilla_mpc:
 
         return utt
 
+
     def state_prediction(self, yt):
         """
             Function that performs the state prediction step in a standard Kalman filter.
@@ -163,6 +161,7 @@ class vanilla_mpc:
         xtt = self.xtt + (self.Lt * (yt - np.matmul(self.C, self.xtt)))
 
         return xtt
+
 
     def state_update(self, utt, yt):
 
