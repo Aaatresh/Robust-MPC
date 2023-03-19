@@ -16,7 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 ## Import controller, controller configuration, and plant configuration
-from plants.servo_mech_system import system_config as servo_system
+from plants.servo_mech_system.system_config import servo_mech_plant
 from libs.mpc_controllers.vanilla_mpc_def import vanilla_mpc
 
 ## Import utils
@@ -31,6 +31,7 @@ parser = argparse.ArgumentParser("Run vanilla MPC in different scenarios. For in
 parser.add_argument("-s", type=int, default=None, required=True, help="1 or 2, corresponding to scenario 1 or 2.")
 parser.add_argument("--savepath", type=str, default=None, help="Directory in which plots are to be saved.")
 parser.add_argument("--controller_config_filepath", type=str, default=None, required=True, help="Path to YAML controller configuration file.")
+parser.add_argument("--plant_config_filepath", type=str, default=None, required=True, help="Path to YAML plant configuration file.")
 args = parser.parse_args()
 
 # Check value of '-s' argument
@@ -48,11 +49,8 @@ CONTROLLER_NAME = "vanilla"
 controller_config_params = validate_control_params(load_yaml(args.controller_config_filepath))
 
 
-# Convert the model to discrete-time
-servo_system.validate_params()
-cont_lin_state_space = servo_system.init_lin_dyn()
-disc_lin_state_space = cnt_to_dst(cont_lin_state_space, servo_system.model_params["dt"])
-
+# Initialize servo-mechanical system
+servo_system = servo_mech_plant(args.plant_config_filepath)
 
 # Define a constant setpoint value. This can be changed based on the type of setpoint tracking desired. This signal
 # can be made more complex as well.
@@ -71,9 +69,9 @@ Rk = controller_config_params[CONTROLLER_NAME][args.s]["Rk"]
 Qk = controller_config_params[CONTROLLER_NAME][args.s]["Qk"]
 
 # Initial state covariance and mean
-init_Pt = controller_config_params[CONTROLLER_NAME][args.s]["init_Pt_std"] * np.eye(disc_lin_state_space["A"].shape[0])
+init_Pt = controller_config_params[CONTROLLER_NAME][args.s]["init_Pt_std"] * np.eye(servo_system.disc_lin_state_space["A"].shape[0])
 init_xtt_1 = controller_config_params[CONTROLLER_NAME][args.s]["init_xtt_std"] * \
-             np.random.randn(disc_lin_state_space["A"].shape[0], 1)
+             np.random.randn(servo_system.disc_lin_state_space["A"].shape[0], 1)
 
 
 # Create empty lists to store relevant variables at teach time step
@@ -84,7 +82,7 @@ all_covs = []
 t_array = np.arange(tspan[0], tspan[1], servo_system.model_params["dt"])
 
 # controller
-controller = vanilla_mpc(disc_lin_state_space,
+controller = vanilla_mpc(servo_system.disc_lin_state_space,
                          controller_config_params, Rk, Qk, init_Pt, init_xtt_1,
                          [-servo_system.model_params["Vmax"], servo_system.model_params["Vmax"]])
 
@@ -101,14 +99,11 @@ for e, t in enumerate(t_array):
     xtt, utt = controller.step(yt, rt)
 
 
-    # Apply utt to the system
+    # Apply utt to the system depending on scenario
     if(args.s == 1):
-        vtt = np.random.randn(disc_lin_state_space["A"].shape[0], 1)
-        next_xtt = np.matmul(disc_lin_state_space["A"], xtt) + (disc_lin_state_space["B"] * utt) + np.matmul(controller.G1, vtt)
-        next_yt = np.matmul(disc_lin_state_space["C"], next_xtt) + np.matmul(controller.D1, vtt)
+        next_xtt, next_yt = servo_system.fwd_prop_lin_model(xtt, utt, controller.G1, controller.D1)
     elif(args.s == 2):
-        next_xtt = xtt + (servo_system.model_params["dt"] * servo_system.nonlin_dyn_step(xtt, utt, e + 1))
-        next_yt = np.matmul(disc_lin_state_space["C"], next_xtt)
+        next_xtt, next_yt = servo_system.fwd_prop_nonlin_model(xtt, utt, e)
 
 
     # Store variables for plotting
