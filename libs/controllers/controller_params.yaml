@@ -16,16 +16,24 @@ robust:
   1:
     Rk: 0.1
     Qk: 50000    # 5e4
+    init_Pt_std: 1.0
+    init_xtt_std: 0.03
 
   2:
     Rk: 0.01
     Qk: 5000     # 5e3
+    init_Pt_std: 1.0
+    init_xtt_std: 0.03
 
 vanilla:
   1:
     Rk: 0.1
     Qk: 10000    # 1e4
+    init_Pt_std: 0.0001
+    init_xtt_std: 0.03
 
   2:
     Rk: 0.01
     Qk: 5000     # 5e3
+    init_Pt_std: 1.0
+    init_xtt_std: 0.01

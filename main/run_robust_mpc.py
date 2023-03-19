@@ -55,8 +55,9 @@ Rk = controller_config_params[CONTROLLER_NAME][args.s]["Rk"]
 Qk = controller_config_params[CONTROLLER_NAME][args.s]["Qk"]
 
 # Initial state covariance and mean
-init_Pt = np.eye(disc_lin_state_space["A"].shape[0])  # Initial state covariance
-init_xtt_1 = 3e-2 * np.random.randn(disc_lin_state_space["A"].shape[0], 1)  # Initial state mean: TODO: Generalize standard of deviation
+init_Pt = controller_config_params[CONTROLLER_NAME][args.s]["init_Pt_std"] * np.eye(disc_lin_state_space["A"].shape[0])
+init_xtt_1 = controller_config_params[CONTROLLER_NAME][args.s]["init_xtt_std"] * \
+             np.random.randn(disc_lin_state_space["A"].shape[0], 1)
 
 
 # Initialize yt

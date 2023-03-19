@@ -62,22 +62,10 @@ tspan = [0, 20]
 Rk = controller_config_params[CONTROLLER_NAME][args.s]["Rk"]
 Qk = controller_config_params[CONTROLLER_NAME][args.s]["Qk"]
 
-if(args.s == 1):
-    # # Weight matrices Rk and Qk
-    # Rk = 0.1
-    # Qk = 1e4
-
-    # Initial state covariance and mean
-    init_Pt = 1e-4 * np.eye(disc_lin_state_space["A"].shape[0])
-    init_xtt_1 = 3e-2 * np.random.randn(disc_lin_state_space["A"].shape[0], 1)
-
-elif(args.s == 2):
-    # Rk = 0.01
-    # Qk = 5e3
-
-    # Initial state covariance and mean
-    init_Pt = np.eye(disc_lin_state_space["A"].shape[0])
-    init_xtt_1 = 1e-2 * np.random.randn(disc_lin_state_space["A"].shape[0], 1)
+# Initial state covariance and mean
+init_Pt = controller_config_params[CONTROLLER_NAME][args.s]["init_Pt_std"] * np.eye(disc_lin_state_space["A"].shape[0])
+init_xtt_1 = controller_config_params[CONTROLLER_NAME][args.s]["init_xtt_std"] * \
+             np.random.randn(disc_lin_state_space["A"].shape[0], 1)
 
 
 # Create empty lists to store relevant variables at teach time step
